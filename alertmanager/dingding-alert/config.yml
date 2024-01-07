@@ -1,0 +1,38 @@
+## Request timeout
+# timeout: 5s
+
+## Uncomment following line in order to write template from scratch (be careful!)
+#no_builtin_template: true
+
+## Customizable templates path
+templates:
+  - /app/alertmanager/templates/dingtalk_template.tmpl
+
+## You can also override default template using `default_message`
+## The following example to use the 'legacy' template from v0.3.0
+#default_message:
+#  title: '{{ template "legacy.title" . }}'
+#  text: '{{ template "dingtalk.default.message" . }}'
+
+## Targets, previously was known as "profiles"
+targets:
+  webhook1:
+    url: https://oapi.dingtalk.com/robot/send?access_token=9e481a9918fb0fe6bd86911f4dfc94bbda5b21d80bb63371c83f79dd1636d484
+    message:
+      text: '{{ template "email.to.message" . }}'
+
+
+# 使用默认模板    
+templates:
+  - contrib/templates/legacy/template.tmpl
+
+## You can also override default template using `default_message`
+## The following example to use the 'legacy' template from v0.3.0
+default_message:
+  title: '{{ template "legacy.title" . }}'
+  text: '{{ template "legacy.content" . }}'
+
+## Targets, previously was known as "profiles"
+targets:
+  webhook1:
+    url: https://oapi.dingtalk.com/robot/send?access_token=9e481a9918fb0fe6bd86911f4dfc94bbda5b21d80bb63371c83f79dd1636d484  

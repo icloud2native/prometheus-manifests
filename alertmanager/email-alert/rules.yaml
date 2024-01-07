@@ -1,0 +1,59 @@
+groups:
+  - name: alertmanager_pod.rules
+    rules:
+    - alert: Pod_all_cpu_usage
+      expr: (sum by(name)(rate(container_cpu_usage_seconds_total{image!=""}[5m]))*100) > 10
+      for: 2m
+      labels:
+        severity: critical
+        service: pods
+      annotations:
+        description: 容器 {{ $labels.name }} CPU 资源利用率大于 10% , (current value is {{ $value }})
+        summary: Dev CPU 负载告警
+
+    - alert: Pod_all_memory_usage  
+      #expr: sort_desc(avg by(name)(irate(container_memory_usage_bytes{name!=""}[5m]))*100) > 10  #内存大于10%
+      expr: sort_desc(avg by(name)(irate(node_memory_MemFree_bytes {name!=""}[5m]))) > 2147483648   #内存大于2G
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        description: 容器 {{ $labels.name }} Memory 资源利用率大于 2G , (current value is {{ $value }})
+        summary: Dev Memory 负载告警
+
+    - alert: Pod_all_network_receive_usage
+      expr: sum by (name)(irate(container_network_receive_bytes_total{container_name="POD"}[1m])) > 50*1024*1024
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        description: 容器 {{ $labels.name }} network_receive 资源利用率大于 50M , (current value is {{ $value }})
+
+    - alert: node内存可用大小 
+      expr: node_memory_MemFree_bytes > 10*1024*1024 #故意写错的
+      #expr: node_memory_MemFree_bytes > 1 #故意写错的
+      for: 15s
+      labels:
+        severity: critical
+      annotations:
+        description: node可用内存小于4G
+
+  - name: alertmanager_node.rules
+    rules:
+    - alert: 磁盘容量
+      expr: 100-(node_filesystem_free_bytes{fstype=~"ext4|xfs"}/node_filesystem_size_bytes {fstype=~"ext4|xfs"}*100) > 80  #磁盘容量利用率大于80%
+      for: 2s
+      labels:
+        severity: critical
+      annotations:
+        summary: "{{$labels.mountpoint}} 磁盘分区使用率过高！"
+        description: "{{$labels.mountpoint }} 磁盘分区使用大于80%(目前使用:{{$value}}%)"
+
+    - alert: 磁盘容量
+      expr: 100-(node_filesystem_free_bytes{fstype=~"ext4|xfs"}/node_filesystem_size_bytes {fstype=~"ext4|xfs"}*100) > 60 #磁盘容量利用率大于60%
+      for: 2s
+      labels:
+        severity: warning
+      annotations:
+        summary: "{{$labels.mountpoint}} 磁盘分区使用率过高！"
+        description: "{{$labels.mountpoint }} 磁盘分区使用大于80%(目前使用:{{$value}}%)"

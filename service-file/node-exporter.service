@@ -1,0 +1,9 @@
+[Unit]
+Description=Prometheus Node Exporter
+After=network.target
+
+[Service]
+ExecStart=/app/node_exporter/node_exporter
+
+[Install]
+WantedBy=multi-user.target

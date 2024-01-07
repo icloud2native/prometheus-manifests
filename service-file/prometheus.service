@@ -1,0 +1,12 @@
+[Unit]
+Description=Prometheus Server
+Documentation=https://prometheus.io/docs/introduction/overview/
+After=network.target
+
+[Service]
+Restart=on-failure
+WorkingDirectory=/app/prometheus/
+ExecStart=/app/prometheus/prometheus --config.file=/app/prometheus/prometheus.yml
+
+[Install]
+WantedBy=multi-user.target

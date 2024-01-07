@@ -1,0 +1,50 @@
+global:
+  smtp_smarthost: 'smtp.qq.com:465'  
+  smtp_from: '353938339@qq.com' 
+  smtp_auth_username: '353938339@qq.com'
+  smtp_auth_password: 'xrvcmvqfsgqicadh'
+  smtp_hello: '@qq.com'
+  smtp_require_tls: false
+  
+  
+route:
+   group_by: [alertname] 
+   group_wait: 10s  
+   group_interval: 10s
+   repeat_interval: 2m 
+   receiver: 'email'  # 默认发给邮箱
+   # receiver: 'wechat'
+   # 添加消息路由
+   routes:
+   - receiver: 'dingding'  # critical级别的日志发送给dingding
+     group_wait: 10s
+     match_re:
+       severity: critical
+
+templates:
+  - '/app/alertmanager/templates/email_template.tmpl'
+  - '/app/alertmanager/templates/wechat_template.tmpl'
+   
+receivers:
+- name: 'email'
+  email_configs:
+   - to: '353938339@qq.com'
+     html: '{{ template "email.to.html" . }}' # 邮件引用模板
+     send_resolved: true    
+- name: 'dingding'  # dignding的模板在dingtalk的config.yml配置
+  webhook_configs:
+  - url: 'http://192.168.58.145:8060/dingtalk/webhook1/send'  
+- name: 'wechat'
+  wechat_configs:
+  - corp_id: wwd56ca1b1c186dc87
+    # to_user: '@all'
+    to_party: 2
+    agent_id: 1000002
+    api_secret: OZECFCwjyZJwDrAmUOlQoiG-kiqY6t1J9pPHlfot1Bs
+    send_resolved: true
+    message: '{{ template "wechat.default.message" . }}'  # 微信引用自定义模板
+     
+inhibit_rules:
+  - source_matchers: [severity="critical"]
+    target_matchers: [severity="warning"]
+    equal: ['alertname', 'dev', 'instance'] 

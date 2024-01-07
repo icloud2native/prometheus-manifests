@@ -1,0 +1,10 @@
+[Unit]
+Description=Prometheus Alertmanager
+After=network.target
+
+[Service]
+Restart=on-failure
+ExecStart=/app/alertmanager/alertmanager --config.file=/app/alertmanager/alertmanager.yml
+
+[Install]
+WantedBy=multi-user.target
